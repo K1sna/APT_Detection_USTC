@@ -2,11 +2,6 @@ import torch
 import torch_geometric
 
 
-# SAGEConv GatedGraphConv ResGatedGraphConv FusedGATConv AGNNConv GINConv MFConv EdgeConv FeaStConv ClusterGCNConv PANConv WLConv EGConv GPSConv: x, edge_index
-# GCNConv ChebConv GraphConv TAGConv ARMAConv SGConv SSGConv APPNP LEConv GCN2Conv WLConvContinuous FAConv LGConv AntiSymmetricConv: x,edge_index, 1D - edge_weights
-# GATConv GATv2Conv TransformerConv GINEConv GMMConv SplineConv NNConv CGCConv PNAConv GENConv PDNConv GeneralConv: x, edge_index, nD - edge_attr
-# RGCNConv FastRGCNConv RGATConv FiLMConv HEATConv: Special need new input include edge_type & node_type
-
 class DetectModel(torch.nn.Module):
     def __init__(self, embedding_dim=16, gnn_layers_cnt=3, num_relations=114, num_node_attr=10):
         self.gnn_layers_cnt = gnn_layers_cnt

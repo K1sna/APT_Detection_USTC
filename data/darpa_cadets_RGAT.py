@@ -19,26 +19,23 @@ from pygod.generator import gen_contextual_outliers, gen_structural_outliers
 from tqdm import tqdm
 
 
-# 长度9
 
-
-# Node attributes: 9维 one-hot向量
-
-# event attribute: 第一维为31维 one-hot向量
-
-# 表 Object 字段 uuid host(0-3) object_type(0-8) parentSubject(uuid) localPrincipal(uuid)
+#--- interaction with SQLite Objects ---# uuid host(0-3) object_type(0-8) parentSubject(uuid) localPrincipal(uuid)
 class ObjectDatabase:
+
+    #--- index node type for fast search ---#
     @property
     def node_type_dict(self):
         node_type_list = ['FILE_OBJECT_DIR', 'FILE_OBJECT_FILE', 'FILE_OBJECT_UNIX_SOCKET', 'IPC_OBJECT_PIPE_UNNAMED',
                           'IPC_OBJECT_SOCKET_PAIR', 'com.bbn.tc.schema.avro.cdm20.NetFlowObject', 'PRINCIPAL_LOCAL',
                           'SRCSINK_IPC', 'SUBJECT_PROCESS', 'Unknown']
         return {node_type_list[index]: index for index in range(len(node_type_list))}
-
+    
     def __init__(self, db="cadets-database.db"):
         self.conn = sqlite3.connect(db)
         self.object_cache = [{}, {}, {}]  # Cached from event
 
+    # --- specialize ---#
     def activate(self, host, uuid, node_type):
         if node_type == "com.bbn.tc.schema.avro.cdm20.Host":
             return
@@ -63,7 +60,8 @@ class ObjectDatabase:
 
 
 class DarpaCadets:
-    # 长度56
+
+    #--- index event-type ---#
     @property
     def event_type_dict(self):
         event_type_list = [
@@ -81,9 +79,11 @@ class DarpaCadets:
         ]
         return {event_type_list[i]: i for i in range(len(event_type_list))}
 
-    host_uuid = {"A3702F4C-5A0C-11E9-B8B9-D4AE52C1DBD3": 0, "3A541941-5B04-11E9-B2DB-D4AE52C1DBD3": 1,
+    host_uuid = {"A3702F4C-5A0C-11E9-B8B9-D4AE52C1DBD3": 0, 
+                 "3A541941-5B04-11E9-B2DB-D4AE52C1DBD3": 1,
                  "CB02303B-654E-11E9-A80C-6C2B597E484C": 2}
-
+    
+    #--- event ---#
     def __init__(self, json_file_list, db_file):
         self.cadets_file = fileinput.input(json_file_list, encoding="utf-8")
         self.obj_database = ObjectDatabase(db_file)
@@ -93,6 +93,7 @@ class DarpaCadets:
     # avr 10 000 000
     # std 80 000 000
 
+    #--- extract ---#
     def get_event_iter(self):
         for line in tqdm(self.cadets_file, desc="Event Reader"):
             cadet_event = json.loads(line)
@@ -123,6 +124,7 @@ class DarpaCadets:
 
 
 # timestamp // 60
+# filter timestamp
 def mul_time(host, timestamp):
     if host == 1:
         return timestamp in [25966945, 25966946, 25966952]
@@ -220,7 +222,7 @@ class CadetsGraphGenerator:
 
 
 class ProcessedInfo:
-    # processed_list 结构
+    # processed_list
     # host-index
     #     |- [timestamp]
     #        |- original
